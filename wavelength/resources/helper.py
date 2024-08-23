@@ -209,6 +209,9 @@ def main(lec):
         def on_button_click(b):
             with output:
                 wavelength(response_value[0], lec, answer=float(int(data[3],16)))
+                # Disable the button after it's clicked
+                b.disabled = True
+                b.description = "Answer Shown"
             
         # Use @widgets.interact with a slider and a custom label
         @widgets.interact(response=widgets.IntSlider(min=0, max=180, step=1, value=90, description='Your Response:',
