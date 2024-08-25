@@ -9,11 +9,6 @@ import sys
 import matplotlib.image as mpimg
 from PIL import Image
 
-# Load the key (ensure you store this securely)
-with open('./resources/secret.key', 'rb') as key_file:
-    key = key_file.read()
-cipher = Fernet(key)
-
 # Load emoji images
 zero_img = Image.open("./resources/0.png")
 two_img = Image.open("./resources/2.png")
@@ -199,7 +194,10 @@ def wavelength(response, lec, answer=None):
     else:
         return 0
 
-
+# Load the key (ensure you store this securely)
+with open('./resources/enc.key', 'rb') as key_file:
+    key = key_file.read()
+cipher = Fernet(key)
 
 def main(lec):
     #reading file
