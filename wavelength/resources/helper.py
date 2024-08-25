@@ -1,12 +1,18 @@
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge, Circle, FancyArrowPatch
 import ipywidgets as widgets  # import ipywidgets package for interactive widgets
+from cryptography.fernet import Fernet
 import math
 import numpy as np
 import csv
 import sys
 import matplotlib.image as mpimg
 from PIL import Image
+
+# Load the key (ensure you store this securely)
+with open('./resources/secret.key', 'rb') as key_file:
+    key = key_file.read()
+cipher = Fernet(key)
 
 # Load emoji images
 zero_img = Image.open("./resources/0.png")
@@ -25,7 +31,7 @@ def readfile(lec):
                 data = row
                 break
     if data == False:
-        print("Select valid lecture number")
+        print("Select valid game number")
         return 0
     else:
         return data
@@ -144,13 +150,13 @@ def wavelength(response, lec, answer=None):
                 y_label = 9 * np.sin(theta_mid)
                 ax.text(x_label, y_label, wedge['label'], color='black', fontsize=3, ha='center', va='center')
     
-            if (answer + 5 >= response >= answer - 5):
+            if (answer + 5 > response >= answer - 5):
                 ax.text(0, -5, "4 points!", color='white', fontsize=7, ha='center', va='center', fontweight='bold')
                 ax.imshow(four_img, extent=[-1, 1, -4, -2])  # Adjust extent to set position and size
-            elif (answer + 15 > response > answer + 5) or (answer - 5 > response > answer - 15):
+            elif (answer + 15 > response >= answer + 5) or (answer - 5 > response >= answer - 15):
                 ax.text(0, -5, "3 points!", color='white', fontsize=7, ha='center', va='center', fontweight='bold')
                 ax.imshow(three_img, extent=[-1, 1, -4, -2])  # Adjust extent to set position and size
-            elif (answer + 25 > response > answer + 15) or (answer - 15 > response > answer - 25):
+            elif (answer + 25 > response >= answer + 15) or (answer - 15 > response >= answer - 25):
                 ax.text(0, -5, "2 points", color='white', fontsize=7, ha='center', va='center', fontweight='bold')
                 ax.imshow(two_img, extent=[-1, 1, -4, -2])  # Adjust extent to set position and size
             else:
@@ -167,9 +173,9 @@ def wavelength(response, lec, answer=None):
         w = Wedge(center=(0, 0), r=8, theta1=180-response-.15, theta2=180-response+.15, color='#DC203A', zorder=1)
         ax.add_patch(w)
     
-        # Add labels for "Hot" and "Cold"
-        ax.text(-8.5, -2, data[1].replace(' ', '\n'), color='white', fontsize=6, ha='center', va='center')
-        ax.text(8.5, -2, data[2].replace(' ', '\n'), color='white', fontsize=6, ha='center', va='center')
+        # Add labels
+        ax.text(-8.5, -1.5, data[1].replace(' ', '\n'), color='white', fontsize=6, ha='center', va='top')
+        ax.text(8.5, -1.5, data[2].replace(' ', '\n'), color='white', fontsize=6, ha='center', va='top')
         
         # Add straight arrows with custom arrowheads
         # Arrow pointing left
@@ -208,7 +214,7 @@ def main(lec):
         # Function to be triggered by button click
         def on_button_click(b):
             with output:
-                wavelength(response_value[0], lec, answer=float(int(data[3],16)))
+                wavelength(response_value[0], lec, float(int(cipher.decrypt(data[3].encode('utf-8')).decode())))
                 # Disable the button after it's clicked
                 b.disabled = True
                 b.description = "Answer Shown"
